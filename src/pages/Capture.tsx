@@ -8,6 +8,7 @@ import { AuraOverlay } from "@/components/AuraOverlay";
 import { analyzeAura, AuraAnalysis } from "@/lib/auraAnalysis";
 import { compressImage, generateId, saveToGallery, AuraPhoto } from "@/lib/storage";
 import { useToast } from "@/hooks/use-toast";
+import ScratchReveal from "@/components/ScratchReveal";
 
 type CaptureState = "camera" | "preview" | "processing" | "result";
 
@@ -318,6 +319,7 @@ interface ResultViewProps {
 
 function ResultView({ auraPhoto, analysis, onRetake, onSave, onClose }: ResultViewProps) {
   const navigate = useNavigate();
+  const [isRevealed, setIsRevealed] = useState(false);
   
   return (
     <div className="min-h-screen bg-background px-6 py-8">
@@ -331,67 +333,81 @@ function ResultView({ auraPhoto, analysis, onRetake, onSave, onClose }: ResultVi
         </Button>
       </div>
 
-      {/* Aura Photo */}
+      {/* Aura Photo with Scratch Reveal */}
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: 0.1, duration: 0.5 }}
         className="relative max-w-sm mx-auto mb-8"
       >
-        <div className="aspect-square rounded-2xl overflow-hidden shadow-soft bg-card">
-          <img
-            src={auraPhoto}
-            alt="Your aura"
-            className="w-full h-full object-cover"
-          />
+        <div className="aspect-square shadow-soft bg-card">
+          <ScratchReveal onReveal={() => setIsRevealed(true)}>
+            <img
+              src={auraPhoto}
+              alt="Your aura"
+              className="w-full h-full object-cover"
+            />
+          </ScratchReveal>
         </div>
       </motion.div>
 
-      {/* Color indicators */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3, duration: 0.5 }}
-        className="flex justify-center gap-3 mb-8"
-      >
-        {analysis.dominantColors.map((color, index) => (
-          <div key={index} className="flex items-center gap-2">
-            <div
-              className="w-4 h-4 rounded-full border border-border/30"
-              style={{ backgroundColor: color.hex }}
-            />
-            <span className="text-sm text-muted-foreground">{color.chakra}</span>
-          </div>
-        ))}
-      </motion.div>
+      {/* Color indicators - show after reveal */}
+      <AnimatePresence>
+        {isRevealed && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="flex justify-center gap-3 mb-8"
+          >
+            {analysis.dominantColors.map((color, index) => (
+              <div key={index} className="flex items-center gap-2">
+                <div
+                  className="w-4 h-4 rounded-full border border-border/30"
+                  style={{ backgroundColor: color.hex }}
+                />
+                <span className="text-sm text-muted-foreground">{color.chakra}</span>
+              </div>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      {/* Reading */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.4, duration: 0.5 }}
-        className="max-w-md mx-auto text-center mb-12"
-      >
-        <p className="font-display text-lg text-foreground leading-relaxed">
-          "{analysis.reading}"
-        </p>
-      </motion.div>
+      {/* Reading - show after reveal */}
+      <AnimatePresence>
+        {isRevealed && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2, duration: 0.5 }}
+            className="max-w-md mx-auto text-center mb-12"
+          >
+            <p className="font-display text-lg text-foreground leading-relaxed">
+              "{analysis.reading}"
+            </p>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      {/* Actions */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.5, duration: 0.5 }}
-        className="flex justify-center gap-4"
-      >
-        <Button variant="outline" onClick={onRetake} className="gap-2">
-          <RotateCcw className="w-4 h-4" />
-          Retake
-        </Button>
-        <Button variant="hero" onClick={onSave} className="gap-2">
-          Save to Gallery
-        </Button>
-      </motion.div>
+      {/* Actions - show after reveal */}
+      <AnimatePresence>
+        {isRevealed && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3, duration: 0.5 }}
+            className="flex justify-center gap-4"
+          >
+            <Button variant="outline" onClick={onRetake} className="gap-2">
+              <RotateCcw className="w-4 h-4" />
+              Retake
+            </Button>
+            <Button variant="hero" onClick={onSave} className="gap-2">
+              Save to Gallery
+            </Button>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
