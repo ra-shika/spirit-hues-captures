@@ -25,6 +25,16 @@ export function useCamera(): UseCameraReturn {
     setError(null);
 
     try {
+      // If we're restarting (retake), fully stop any previous stream first
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach((track) => track.stop());
+        streamRef.current = null;
+      }
+
+      if (videoRef.current) {
+        videoRef.current.srcObject = null;
+      }
+
       // Request front camera
       const stream = await navigator.mediaDevices.getUserMedia({
         video: {
@@ -40,11 +50,15 @@ export function useCamera(): UseCameraReturn {
 
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
-        await videoRef.current.play();
+        // Some browsers can throw here if the element isn't ready yet
+        await videoRef.current.play().catch(() => {
+          // If play fails, surface a friendly error (common on iOS if autoplay is blocked)
+          setError("Tap to start the camera preview.");
+        });
       }
     } catch (err) {
       const message = err instanceof Error ? err.message : "Failed to access camera";
-      
+
       if (message.includes("Permission denied") || message.includes("NotAllowedError")) {
         setError("Camera permission denied. Please allow camera access to continue.");
       } else if (message.includes("NotFoundError")) {
@@ -52,7 +66,7 @@ export function useCamera(): UseCameraReturn {
       } else {
         setError("Unable to access camera. Please try again.");
       }
-      
+
       setHasPermission(false);
     } finally {
       setIsLoading(false);
