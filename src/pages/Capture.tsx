@@ -15,38 +15,65 @@ const Capture = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { videoRef, canvasRef, isLoading, error, startCamera, stopCamera, capturePhoto } = useCamera();
-  
+
   const [state, setState] = useState<CaptureState>("camera");
+  const [countdown, setCountdown] = useState<number | null>(null);
   const [capturedPhoto, setCapturedPhoto] = useState<string | null>(null);
   const [auraAnalysis, setAuraAnalysis] = useState<AuraAnalysis | null>(null);
   const [auraPhoto, setAuraPhoto] = useState<string | null>(null);
 
+  // Start/stop camera based on view state (fixes black preview after retake)
   useEffect(() => {
-    startCamera();
-    return () => stopCamera();
-  }, [startCamera, stopCamera]);
+    if (state === "camera") {
+      startCamera();
+    } else {
+      stopCamera();
+    }
+
+    return () => {
+      stopCamera();
+    };
+  }, [state, startCamera, stopCamera]);
+
+  // Countdown: 3 → 2 → 1 → capture
+  useEffect(() => {
+    if (countdown === null) return;
+
+    if (countdown === 0) {
+      setCountdown(null);
+      const photo = capturePhoto();
+      if (photo) {
+        setCapturedPhoto(photo);
+        setState("preview");
+      }
+      return;
+    }
+
+    const t = window.setTimeout(() => {
+      setCountdown((c) => (c === null ? null : c - 1));
+    }, 1000);
+
+    return () => window.clearTimeout(t);
+  }, [countdown, capturePhoto]);
 
   const handleCapture = useCallback(() => {
-    const photo = capturePhoto();
-    if (photo) {
-      setCapturedPhoto(photo);
-      setState("preview");
-    }
-  }, [capturePhoto]);
+    if (isLoading || !!error || countdown !== null) return;
+    setCountdown(3);
+  }, [isLoading, error, countdown]);
 
   const handleRetake = useCallback(() => {
+    setCountdown(null);
     setCapturedPhoto(null);
     setAuraAnalysis(null);
     setAuraPhoto(null);
     setState("camera");
-    startCamera();
-  }, [startCamera]);
+  }, []);
 
   const handleContinue = useCallback(async () => {
     if (!capturedPhoto) return;
-    
+
     setState("processing");
-    
+
     try {
       const analysis = await analyzeAura(capturedPhoto);
       setAuraAnalysis(analysis);
@@ -139,7 +166,7 @@ const Capture = () => {
               className="w-full h-full object-cover"
               style={{ transform: "scaleX(-1)" }}
             />
-            
+
             {/* Hidden canvas for capture */}
             <canvas ref={canvasRef} className="hidden" />
 
@@ -147,6 +174,18 @@ const Capture = () => {
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <div className="w-64 h-64 sm:w-80 sm:h-80 rounded-full border-2 border-dashed border-card/30" />
             </div>
+
+            {/* Countdown overlay */}
+            {countdown !== null && (
+              <div className="absolute inset-0 flex items-center justify-center bg-foreground/40 backdrop-blur-[2px]">
+                <div className="flex flex-col items-center">
+                  <div className="font-display text-7xl text-card drop-shadow-lg">
+                    {countdown}
+                  </div>
+                  <div className="mt-2 text-card/80 text-sm">Hold still</div>
+                </div>
+              </div>
+            )}
 
             {/* Loading/Error states */}
             {isLoading && (
@@ -172,7 +211,7 @@ const Capture = () => {
                 variant="capture"
                 size="icon-lg"
                 onClick={handleCapture}
-                disabled={isLoading || !!error}
+                disabled={isLoading || !!error || countdown !== null}
                 className="w-20 h-20 rounded-full"
               >
                 <Camera className="w-8 h-8" />

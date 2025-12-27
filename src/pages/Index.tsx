@@ -10,70 +10,19 @@ const Index = () => {
       <title>Aura Photography - Discover Your Energy</title>
       <meta name="description" content="Capture your aura and discover your chakra energy with our mystical photo experience. Free, instant, and beautiful." />
       
-      {/* Vibrant aura gradient background */}
+      {/* Subtle aura gradient background (reference-inspired) */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        {/* Central radial gradient - yellow core fading to pink/magenta edges */}
-        <div 
+        <div
           className="absolute inset-0"
-          style={{
-            background: `
-              radial-gradient(
-                ellipse at center,
-                hsl(50, 100%, 65%) 0%,
-                hsl(45, 100%, 60%) 15%,
-                hsl(35, 95%, 55%) 25%,
-                hsl(340, 90%, 65%) 45%,
-                hsl(320, 85%, 60%) 60%,
-                hsl(300, 75%, 55%) 75%,
-                hsl(290, 70%, 50%) 90%,
-                hsl(280, 65%, 45%) 100%
-              )
-            `
-          }}
+          style={{ background: "var(--gradient-home-aura)" }}
         />
-        
-        {/* Animated pulsing glow layers */}
         <motion.div
           className="absolute inset-0"
-          animate={{
-            opacity: [0.3, 0.6, 0.3],
-          }}
-          transition={{
-            duration: 4,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
+          animate={{ opacity: [0.55, 0.8, 0.55] }}
+          transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
           style={{
-            background: `
-              radial-gradient(
-                ellipse at center,
-                hsl(50, 100%, 70%) 0%,
-                transparent 50%
-              )
-            `
-          }}
-        />
-        
-        <motion.div
-          className="absolute inset-0"
-          animate={{
-            scale: [1, 1.05, 1],
-            opacity: [0.2, 0.4, 0.2],
-          }}
-          transition={{
-            duration: 6,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
-          style={{
-            background: `
-              radial-gradient(
-                ellipse at center,
-                transparent 30%,
-                hsl(340, 90%, 70%) 50%,
-                transparent 70%
-              )
-            `
+            background:
+              "radial-gradient(circle at 50% 55%, hsl(var(--home-glow-core) / 0.25) 0%, transparent 60%)",
           }}
         />
       </div>
@@ -81,7 +30,11 @@ const Index = () => {
       {/* Header */}
       <header className="relative z-10 flex justify-end p-6">
         <Link to="/gallery">
-          <Button variant="ghost" size="sm" className="gap-2 text-white/90 hover:text-white hover:bg-white/20">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="gap-2 text-foreground/80 hover:text-foreground hover:bg-foreground/5"
+          >
             <BookOpen className="w-4 h-4" />
             <span className="hidden sm:inline">Gallery</span>
           </Button>
@@ -103,8 +56,8 @@ const Index = () => {
             transition={{ delay: 0.2, duration: 0.6 }}
             className="mb-8"
           >
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm border border-white/30">
-              <Sparkles className="w-7 h-7 text-white" />
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-card/40 backdrop-blur-sm border border-border/30 shadow-soft">
+              <Sparkles className="w-7 h-7 text-foreground" />
             </div>
           </motion.div>
 
@@ -113,7 +66,7 @@ const Index = () => {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3, duration: 0.6 }}
-            className="font-display text-4xl sm:text-5xl font-medium text-white mb-4 tracking-tight drop-shadow-lg"
+            className="font-display text-4xl sm:text-5xl font-medium text-foreground mb-4 tracking-tight"
           >
             Aura
           </motion.h1>
@@ -123,9 +76,9 @@ const Index = () => {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4, duration: 0.6 }}
-            className="text-white/90 text-lg mb-12 leading-relaxed drop-shadow-md"
+            className="text-muted-foreground text-lg mb-12 leading-relaxed"
           >
-            Discover the colors of your energy. 
+            Discover the colors of your energy.
             <br className="hidden sm:block" />
             Capture your aura and reveal your inner light.
           </motion.p>
@@ -137,10 +90,7 @@ const Index = () => {
             transition={{ delay: 0.5, duration: 0.6 }}
           >
             <Link to="/capture">
-              <Button 
-                size="xl" 
-                className="gap-3 group bg-white/95 hover:bg-white text-foreground shadow-lg hover:shadow-xl transition-all duration-300"
-              >
+              <Button variant="hero" size="xl" className="gap-3 group shadow-soft">
                 <Camera className="w-5 h-5 transition-transform group-hover:scale-110" />
                 Capture Your Aura
               </Button>
@@ -152,7 +102,7 @@ const Index = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.7, duration: 0.6 }}
-            className="mt-8 text-xs text-white/60"
+            className="mt-8 text-xs text-muted-foreground"
           >
             Your photos never leave your device
           </motion.p>
@@ -161,9 +111,7 @@ const Index = () => {
 
       {/* Footer */}
       <footer className="relative z-10 pb-8 text-center">
-        <p className="text-xs text-white/40">
-          Powered by chakra wisdom
-        </p>
+        <p className="text-xs text-muted-foreground/70">Powered by chakra wisdom</p>
       </footer>
     </div>
   );

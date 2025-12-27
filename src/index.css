@@ -53,6 +53,11 @@
     --gradient-beige: linear-gradient(180deg, hsl(40, 33%, 98%) 0%, hsl(40, 30%, 94%) 100%);
     --gradient-aura: radial-gradient(ellipse at center, transparent 30%, hsl(var(--aura-crown) / 0.3) 70%, hsl(var(--aura-heart) / 0.2) 100%);
 
+    /* Homepage aura backdrop (subtle, like the reference) */
+    --home-glow-core: 45 95% 76%;
+    --home-glow-pink: 340 75% 78%;
+    --gradient-home-aura: radial-gradient(circle at 50% 55%, hsl(var(--home-glow-core) / 0.95) 0%, hsl(var(--home-glow-pink) / 0.55) 35%, hsl(var(--home-glow-pink) / 0.18) 55%, hsl(var(--background)) 78%);
+
     /* Shadows */
     --shadow-soft: 0 4px 20px -4px hsl(0 0% 0% / 0.08);
     --shadow-card: 0 2px 12px -2px hsl(0 0% 0% / 0.06);
