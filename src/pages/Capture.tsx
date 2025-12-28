@@ -1,38 +1,103 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Camera, RotateCcw, ArrowRight, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useCamera } from "@/hooks/useCamera";
 import { AuraOverlay } from "@/components/AuraOverlay";
 import { analyzeAura, AuraAnalysis } from "@/lib/auraAnalysis";
 import { compressImage, generateId, saveToGallery, AuraPhoto } from "@/lib/storage";
 import { useToast } from "@/hooks/use-toast";
-import ScratchReveal from "@/components/ScratchReveal";
 
 type CaptureState = "camera" | "preview" | "processing" | "result";
 
 const Capture = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { videoRef, canvasRef, isLoading, error, startCamera, stopCamera, capturePhoto } = useCamera();
+  
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const streamRef = useRef<MediaStream | null>(null);
 
   const [state, setState] = useState<CaptureState>("camera");
   const [countdown, setCountdown] = useState<number | null>(null);
   const [capturedPhoto, setCapturedPhoto] = useState<string | null>(null);
   const [auraAnalysis, setAuraAnalysis] = useState<AuraAnalysis | null>(null);
   const [auraPhoto, setAuraPhoto] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  // Start/stop camera based on view state (fixes black preview after retake)
+  // Camera functions
+  const stopCamera = useCallback(() => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop());
+      streamRef.current = null;
+    }
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
+    }
+  }, []);
+
+  const startCamera = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    
+    // Stop any existing stream first
+    stopCamera();
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: "user", width: { ideal: 1080 }, height: { ideal: 1080 } },
+        audio: false,
+      });
+
+      streamRef.current = stream;
+
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        await videoRef.current.play();
+      }
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Failed to access camera";
+      if (message.includes("Permission denied") || message.includes("NotAllowedError")) {
+        setError("Camera permission denied. Please allow camera access.");
+      } else if (message.includes("NotFoundError")) {
+        setError("No camera found on this device.");
+      } else {
+        setError("Unable to access camera. Please try again.");
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  }, [stopCamera]);
+
+  const capturePhoto = useCallback((): string | null => {
+    if (!videoRef.current || !canvasRef.current) return null;
+
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return null;
+
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+
+    ctx.translate(canvas.width, 0);
+    ctx.scale(-1, 1);
+    ctx.drawImage(video, 0, 0);
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+
+    return canvas.toDataURL("image/jpeg", 0.9);
+  }, []);
+
+  // Start camera when entering camera state
   useEffect(() => {
     if (state === "camera") {
       startCamera();
-    } else {
-      stopCamera();
     }
-
     return () => {
-      stopCamera();
+      if (state === "camera") {
+        stopCamera();
+      }
     };
   }, [state, startCamera, stopCamera]);
 
@@ -319,7 +384,6 @@ interface ResultViewProps {
 
 function ResultView({ auraPhoto, analysis, onRetake, onSave, onClose }: ResultViewProps) {
   const navigate = useNavigate();
-  const [isRevealed, setIsRevealed] = useState(false);
   
   return (
     <div className="min-h-screen bg-background px-6 py-8">
@@ -333,81 +397,67 @@ function ResultView({ auraPhoto, analysis, onRetake, onSave, onClose }: ResultVi
         </Button>
       </div>
 
-      {/* Aura Photo with Scratch Reveal */}
+      {/* Aura Photo */}
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: 0.1, duration: 0.5 }}
         className="relative max-w-sm mx-auto mb-8"
       >
-        <div className="aspect-square shadow-soft bg-card">
-          <ScratchReveal onReveal={() => setIsRevealed(true)}>
-            <img
-              src={auraPhoto}
-              alt="Your aura"
-              className="w-full h-full object-cover"
-            />
-          </ScratchReveal>
+        <div className="aspect-square shadow-soft bg-card rounded-lg overflow-hidden">
+          <img
+            src={auraPhoto}
+            alt="Your aura"
+            className="w-full h-full object-cover"
+          />
         </div>
       </motion.div>
 
-      {/* Color indicators - show after reveal */}
-      <AnimatePresence>
-        {isRevealed && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="flex justify-center gap-3 mb-8"
-          >
-            {analysis.dominantColors.map((color, index) => (
-              <div key={index} className="flex items-center gap-2">
-                <div
-                  className="w-4 h-4 rounded-full border border-border/30"
-                  style={{ backgroundColor: color.hex }}
-                />
-                <span className="text-sm text-muted-foreground">{color.chakra}</span>
-              </div>
-            ))}
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Color indicators */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2, duration: 0.5 }}
+        className="flex justify-center gap-3 mb-8"
+      >
+        {analysis.dominantColors.map((color, index) => (
+          <div key={index} className="flex items-center gap-2">
+            <div
+              className="w-4 h-4 rounded-full border border-border/30"
+              style={{ backgroundColor: color.hex }}
+            />
+            <span className="text-sm text-muted-foreground">{color.chakra}</span>
+          </div>
+        ))}
+      </motion.div>
 
-      {/* Reading - show after reveal */}
-      <AnimatePresence>
-        {isRevealed && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2, duration: 0.5 }}
-            className="max-w-md mx-auto text-center mb-12"
-          >
-            <p className="font-display text-lg text-foreground leading-relaxed">
-              "{analysis.reading}"
-            </p>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Reading */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3, duration: 0.5 }}
+        className="max-w-md mx-auto text-center mb-12"
+      >
+        <p className="font-display text-lg text-foreground leading-relaxed">
+          "{analysis.reading}"
+        </p>
+      </motion.div>
 
-      {/* Actions - show after reveal */}
-      <AnimatePresence>
-        {isRevealed && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3, duration: 0.5 }}
-            className="flex justify-center gap-4"
-          >
-            <Button variant="outline" onClick={onRetake} className="gap-2">
-              <RotateCcw className="w-4 h-4" />
-              Retake
-            </Button>
-            <Button variant="hero" onClick={onSave} className="gap-2">
-              Save to Gallery
-            </Button>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Actions */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.4, duration: 0.5 }}
+        className="flex justify-center gap-4"
+      >
+        <Button variant="outline" onClick={onRetake} className="gap-2">
+          <RotateCcw className="w-4 h-4" />
+          Retake
+        </Button>
+        <Button variant="hero" onClick={onSave} className="gap-2">
+          Save to Gallery
+        </Button>
+      </motion.div>
     </div>
   );
 }
