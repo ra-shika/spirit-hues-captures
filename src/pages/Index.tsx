@@ -66,7 +66,7 @@ const Index = () => {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3, duration: 0.6 }}
-            className="font-display text-4xl sm:text-5xl font-medium text-foreground mb-4 tracking-tight"
+            className="font-display text-7xl sm:text-8xl md:text-9xl font-medium text-foreground mb-6 tracking-tight"
           >
             Aura
           </motion.h1>
