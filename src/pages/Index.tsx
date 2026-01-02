@@ -47,7 +47,7 @@ const Index = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: "easeOut" }}
-          className="text-center max-w-md mx-auto"
+          className="relative text-center max-w-md mx-auto"
         >
           {/* Icon */}
           <motion.div
@@ -63,13 +63,33 @@ const Index = () => {
 
           {/* Title */}
           <motion.h1
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3, duration: 0.6 }}
-            className="font-display text-4xl sm:text-5xl font-medium text-foreground mb-4 tracking-tight"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.3, duration: 0.8, ease: "easeOut" }}
+            className="font-display text-7xl sm:text-8xl md:text-9xl font-light tracking-tight mb-6"
           >
-            Aura
+            <span 
+              className="bg-gradient-to-br from-rose-400 via-amber-300 to-yellow-200 bg-clip-text text-transparent drop-shadow-sm"
+              style={{
+                textShadow: '0 0 80px hsla(340, 80%, 60%, 0.3), 0 0 120px hsla(45, 90%, 60%, 0.2)'
+              }}
+            >
+              Aura
+            </span>
           </motion.h1>
+          
+          {/* Decorative glow behind title */}
+          <motion.div
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 sm:w-80 sm:h-80 rounded-full pointer-events-none -z-10"
+            style={{
+              background: 'radial-gradient(circle, hsla(45, 90%, 70%, 0.15) 0%, hsla(340, 80%, 60%, 0.08) 50%, transparent 70%)'
+            }}
+            animate={{ 
+              scale: [1, 1.1, 1],
+              opacity: [0.6, 0.8, 0.6]
+            }}
+            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+          />
 
           {/* Subtitle */}
           <motion.p
