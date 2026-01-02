@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Camera, BookOpen } from "lucide-react";
+import { Camera, BookOpen, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const Index = () => {
@@ -10,7 +10,7 @@ const Index = () => {
       <title>Aura Photography - Discover Your Energy</title>
       <meta name="description" content="Capture your aura and discover your chakra energy with our mystical photo experience. Free, instant, and beautiful." />
       
-      {/* Subtle aura gradient background (keeping existing) */}
+      {/* Subtle aura gradient background (reference-inspired) */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div
           className="absolute inset-0"
@@ -42,54 +42,76 @@ const Index = () => {
       </header>
 
       {/* Main content */}
-      <main className="relative z-10 flex-1 flex flex-col px-6 sm:px-12 lg:px-20 pb-12">
-        {/* Large Title at Top */}
-        <motion.h1
-          initial={{ opacity: 0, y: -20 }}
+      <main className="relative z-10 flex-1 flex flex-col items-center justify-center px-6 pb-20">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: "easeOut" }}
-          className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-normal text-foreground tracking-tight text-center mt-8 sm:mt-12"
+          className="text-center max-w-md mx-auto"
         >
-          Do you wanna see your colors?
-        </motion.h1>
-
-        {/* Content area */}
-        <div className="flex-1 flex items-center mt-12 sm:mt-16">
-          {/* Left side - Content Box */}
+          {/* Icon */}
           <motion.div
-            initial={{ opacity: 0, x: -30 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.3, duration: 0.7, ease: "easeOut" }}
-            className="max-w-sm"
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ delay: 0.2, duration: 0.6 }}
+            className="mb-8"
           >
-            <div className="bg-card/30 backdrop-blur-sm border border-border/20 p-6 sm:p-8">
-              <p className="text-foreground/90 text-base sm:text-lg mb-2">
-                Discover the color of your energy.
-              </p>
-              <p className="text-muted-foreground text-base sm:text-lg mb-8">
-                Capture your aura and reveal your inner light.
-              </p>
-
-              {/* CTA Button */}
-              <Link to="/capture">
-                <Button 
-                  variant="outline" 
-                  className="gap-2 group border-foreground/30 hover:bg-foreground/5 text-foreground"
-                >
-                  <Camera className="w-4 h-4 transition-transform group-hover:scale-110" />
-                  Capture your Aura
-                </Button>
-              </Link>
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-card/40 backdrop-blur-sm border border-border/30 shadow-soft">
+              <Sparkles className="w-7 h-7 text-foreground" />
             </div>
           </motion.div>
-        </div>
+
+          {/* Title */}
+          <motion.h1
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3, duration: 0.6 }}
+            className="font-display text-4xl sm:text-5xl font-medium text-foreground mb-4 tracking-tight"
+          >
+            Aura
+          </motion.h1>
+
+          {/* Subtitle */}
+          <motion.p
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4, duration: 0.6 }}
+            className="text-muted-foreground text-lg mb-12 leading-relaxed"
+          >
+            Discover the colors of your energy.
+            <br className="hidden sm:block" />
+            Capture your aura and reveal your inner light.
+          </motion.p>
+
+          {/* CTA Button */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5, duration: 0.6 }}
+          >
+            <Link to="/capture">
+              <Button variant="hero" size="xl" className="gap-3 group shadow-soft">
+                <Camera className="w-5 h-5 transition-transform group-hover:scale-110" />
+                Capture Your Aura
+              </Button>
+            </Link>
+          </motion.div>
+
+          {/* Privacy note */}
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.7, duration: 0.6 }}
+            className="mt-8 text-xs text-muted-foreground"
+          >
+            Your photos never leave your device
+          </motion.p>
+        </motion.div>
       </main>
 
-      {/* Footer - Privacy note */}
-      <footer className="relative z-10 pb-6 px-6 sm:px-12">
-        <p className="text-xs text-muted-foreground/60">
-          Your photos never leave your device
-        </p>
+      {/* Footer */}
+      <footer className="relative z-10 pb-8 text-center">
+        <p className="text-xs text-muted-foreground/70">Powered by chakra wisdom</p>
       </footer>
     </div>
   );
