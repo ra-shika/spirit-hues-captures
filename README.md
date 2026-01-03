@@ -1,22 +1,19 @@
-# Welcome to your Lovable project
+# AuraCapture
 
-## Project info
+Discover the colors of your energy. Capture your aura and reveal your inner light.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+## Features
 
-## How can I edit this code?
+- 📸 **Camera Capture** - Take photos directly with your camera
+- 📤 **Image Upload** - Upload existing photos to analyze
+- 🌈 **Aura Analysis** - AI-powered chakra color detection
+- 💾 **Local Gallery** - Save your aura readings privately on your device
+- 📱 **Instagram Sharing** - Share your aura directly to Instagram
+- 🌌 **Beautiful Galaxy Theme** - Immersive cosmic design
 
-There are several ways of editing your application.
+## Privacy
 
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+Your photos never leave your device. All processing is done locally in your browser.
 
 The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
 
